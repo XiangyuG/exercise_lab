@@ -13,6 +13,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <time.h>
+#include <sys/sysmacros.h>
 static int err_code;
 
 /*
@@ -149,7 +151,13 @@ bool test_file(char* pathandname) {
  */
 bool is_dir(char* pathandname) {
     /* TODO: fillin */
-
+    // Reference: https://man7.org/linux/man-pages/man2/lstat.2.html
+    struct stat sb;
+    lstat(pathandname, &sb);
+    // Pay attent to the priority of operations
+    if ((sb.st_mode & S_IFMT) == S_IFDIR) {
+	return true;
+    }
     return false;
 }
 
@@ -204,6 +212,9 @@ int main(int argc, char* argv[]) {
     // This needs to be int since C does not specify whether char is signed or
     // unsigned.
     int opt;
+    // Note: test is_dir func
+    // char* filename = "/home/xinggao/labs/lab2/main.c";
+    // printf("%d\n", is_dir(filename));
     err_code = 0;
     bool list_long = false, list_all = false;
     // We make use of getopt_long for argument parsing, and this
